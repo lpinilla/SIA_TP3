@@ -60,7 +60,10 @@ class Perceptron:
 
     #función de activación
     def guess(self, input_arr):
-        return self.activation_fun(np.dot(self.weights, np.array(input_arr)))
+        inp = input_arr
+        inp.append(1)
+        inp = np.array(inp)
+        return self.activation_fun(np.dot(self.weights, inp))
 
 
     def train(self, inputs, expected):

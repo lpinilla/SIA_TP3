@@ -3,7 +3,7 @@ import numpy as np
 import pickle
 from Perceptron import Perceptron
 
-learning_rate = 0.2
+learning_rate = 0.5
 
 #Ejercicio 2
 
@@ -17,20 +17,20 @@ def linear_deriv(x):
     return 1
 
 #Creamos perceptron lineal que dividiendo el dataset en 10% para testeo
-p3 = Perceptron(3, learning_rate, activation_fun=linear_activation, deriv_fun=linear_deriv, split_data=True, test_p=0.1)
+p3 = Perceptron(3, learning_rate, activation_fun=linear_activation, deriv_fun=linear_deriv, split_data=True, test_p=0.2)
 
 error = 5
 
 while error > 0:
     #Agarramos un dataset random
-    f = open(datasets_basepath + str(random.randint(0,9)) + ".pickle", "rb")
+    f = open(datasets_basepath + str(random.randint(0,3)) + ".pickle", "rb")
     inp = pickle.load(f)
     exp = pickle.load(f)
     f.close()
-    iterations, weights, error = \
-        p3.train(inp, exp)
+    iterations, weights, error = p3.train(inp, exp)
+    print(error)
 
-f = open(datasets_basepath + str(random.randint(0,9)) + ".pickle", "rb")
+f = open(datasets_basepath + str(random.randint(0,3)) + ".pickle", "rb")
 inp = pickle.load(f)
 exp = pickle.load(f)
 

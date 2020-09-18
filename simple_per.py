@@ -23,8 +23,8 @@ print("iterations " + str(iterations))
 print("weights " + str(weights))
 
 print("Resultados:")
-print(p.guess([-1,-1, 1]), p.guess([-1, 1, 1]), \
-      p.guess([1, -1, 1]), p.guess([1, 1, 1]))
+print(p.guess([-1,-1]), p.guess([-1, 1]), \
+      p.guess([1, -1]), p.guess([1, 1]))
 
 #Ejer 1.2, función XOR
 
@@ -32,7 +32,6 @@ print(p.guess([-1,-1, 1]), p.guess([-1, 1, 1]), \
 #que el programa corte por límite de pasos
 
 p2 = Perceptron(2, eta=learning_rate, activation_fun=step_activation, deriv_fun=step_deriv)
-
 
 xor_input_data= [[-1,-1], [-1,1], [1,-1], [1,1]]
 xor_expected_values = [-1, 1, 1, -1]
@@ -44,5 +43,5 @@ print("iterations " + str(iterations))
 print("weights " + str(weights))
 
 print("Resultados:")
-print(p2.guess([-1,-1, 1]), p2.guess([-1, 1, 1]), \
-      p2.guess([1, -1, 1]), p2.guess([1, 1, 1]))
+print(p2.guess([-1,-1]), p2.guess([-1, 1]), \
+      p2.guess([1, -1]), p2.guess([1, 1]))
