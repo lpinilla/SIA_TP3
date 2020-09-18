@@ -22,7 +22,7 @@ class Perceptron:
         )
 
     #agregar un 1 al valor y devolver un numpy array
-    def process_input(self, input_arr):
+    def process_input(self, input_arr, expected_arr):
         #checkear que la cantidad de inputs sea la misma que
         #la cantidad de pesos
         for inp in input_arr:
@@ -40,8 +40,11 @@ class Perceptron:
         #en base al % introducido
         if self.split_data:
             split_idx = int(len(input_arr) * (1 - self.test_p))
-            return np.array(inputs[:split_idx]), np.array(inputs[split_idx:])
-        return np.array(inputs), np.array(inputs)
+            return np.array(inputs[:split_idx]), \
+                   expected_arr[:split_idx], \
+                   np.array(inputs[split_idx:]), \
+                   expected_arr[split_idx:]
+        return np.array(inputs), expected_arr, np.array(inputs), expected_arr
 
     def calculate_error(self, test_data, expected_values):
         exts = np.array([np.dot(self.weights, i) for i in test_data])
@@ -60,9 +63,10 @@ class Perceptron:
         return self.activation_fun(np.dot(self.weights, np.array(input_arr)))
 
 
-    def train(self, inputs_arr, expected):
+    def train(self, inputs, expected):
         #pasar de una lista a un array de numpy
-        inputs_data, test_data = self.process_input(inputs_arr)
+        inp_data, inp_exp, test_data, test_exp = \
+                self.process_input(inputs, expected)
         error = 1
         curr_step = 0
         error_min = 1
@@ -71,15 +75,15 @@ class Perceptron:
             if curr_step % 100:
                 self.weights = self.random_weights()
             #agarramos una muestra al azar con su valor experado
-            idx = random.randint(0, len(inputs_data) -1)
-            sample = inputs_data[idx]
-            s_exp = expected[idx]
+            idx = random.randint(0, len(inp_data) -1)
+            sample = inp_data[idx]
+            s_exp = inp_exp[idx]
             #calcular el valor de excitación, también conocido como h
             ext = np.dot(self.weights, sample)
             #sumar los nuevos pesos
             self.weights += self.calculate_deltaW(s_exp, sample, ext)
             #calcular el error evaluando todos los datos
-            error = self.calculate_error(test_data, expected)
+            error = self.calculate_error(test_data, test_exp)
             if error < error_min:
                 error_min = error
             curr_step += 1

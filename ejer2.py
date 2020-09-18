@@ -26,7 +26,6 @@ while error > 0:
     f = open(datasets_basepath + str(random.randint(0,9)) + ".pickle", "rb")
     inp = pickle.load(f)
     exp = pickle.load(f)
-    print(inp)
     f.close()
     iterations, weights, error = \
         p3.train(inp, exp)
