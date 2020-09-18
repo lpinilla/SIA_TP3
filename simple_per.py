@@ -47,6 +47,8 @@ print("Resultados:")
 print(p2.guess([-1,-1, 1]), p2.guess([-1, 1, 1]), \
       p2.guess([1, -1, 1]), p2.guess([1, 1, 1]))
 
+#Ejercicio 2
+
 #activación lineal
 def linear_activation(x):
     return x
@@ -54,3 +56,13 @@ def linear_activation(x):
 def linear_deriv(x):
     return 1
 
+#activacion no lineal
+
+beta = 0.7 #TODO: ver que valor poner
+
+def no_linear_activation(x):
+    return 1 / (1 + np.exp(-2 * beta * x))
+
+def no_linear_deriv(x):
+    act = no_linear_activation(x)
+    return 2 * beta * act * (1 - act)
