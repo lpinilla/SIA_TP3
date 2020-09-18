@@ -16,7 +16,7 @@ def step_deriv(x):
 and_input_data= [[-1,-1], [-1,1], [1,-1], [1,1]]
 and_expected_values = [-1, -1, -1, 1]
 
-p = Perceptron(2, learning_rate, step_activation, step_deriv)
+p = Perceptron(2, eta=learning_rate, activation_fun=step_activation, deriv_fun=step_deriv)
 
 iterations, weights, curr_error = p.train(and_input_data, and_expected_values)
 print("iterations " + str(iterations))
@@ -31,7 +31,8 @@ print(p.guess([-1,-1, 1]), p.guess([-1, 1, 1]), \
 #La función no es linealmente separable por lo que esperamos
 #que el programa corte por límite de pasos
 
-p2 = Perceptron(2, learning_rate, step_activation, step_deriv)
+p2 = Perceptron(2, eta=learning_rate, activation_fun=step_activation, deriv_fun=step_deriv)
+
 
 xor_input_data= [[-1,-1], [-1,1], [1,-1], [1,1]]
 xor_expected_values = [-1, 1, 1, -1]
