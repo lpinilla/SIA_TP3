@@ -22,8 +22,8 @@ f.close()
 #separar en distintas sublistas el dataset
 #n indica el número de datos de cada particion
 n = 20
-datasets_in = [inputs[i:i+n] for i in range(0, len(inputs), n)]
-datasets_ex = [expecteds[i:i+n] for i in range(0, len(expecteds), n)]
+datasets_in = [inputs[i:i+n] for i in range(0, len(inputs), n)][0]
+datasets_ex = [expecteds[i:i+n] for i in range(0, len(expecteds), n)][0]
 
 for i in range(0, int(len(inputs) / n)):
     with open(output_basepath + str(i) + ".pickle", "wb") as f:
