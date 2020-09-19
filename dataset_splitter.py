@@ -22,11 +22,11 @@ f.close()
 #separar en distintas sublistas el dataset
 #n indica el número de datos de cada particion
 n = 50
-datasets_in = [inputs[i:i+n] for i in range(0, len(inputs), n)][0]
-datasets_ex = [expecteds[i:i+n] for i in range(0, len(expecteds), n)][0]
+datasets_in = [inputs[i:i+n] for i in range(0, len(inputs), n)]
+datasets_ex = [expecteds[i:i+n] for i in range(0, len(expecteds), n)]
 
 for i in range(0, int(len(inputs) / n)):
     with open(output_basepath + str(i) + ".pickle", "wb") as f:
-        pickle.dump(datasets_in, f)
-        pickle.dump(datasets_ex, f)
+        pickle.dump(datasets_in[i], f)
+        pickle.dump(datasets_ex[i], f)
     f.close()

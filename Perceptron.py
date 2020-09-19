@@ -1,13 +1,17 @@
 import random
 import numpy as np
 
-max_steps = 100000
+max_steps = 10000
+error_window = 2
+eta_variation = 0.001
 
 class Perceptron:
 
     def __init__(self, input_size, eta, \
                  activation_fun, deriv_fun, split_data=False, test_p=1):
         global max_steps
+        global error_window
+        global eta_variation
         self.input_size = input_size
         self.weights = self.random_weights()
         self.eta = eta
@@ -15,6 +19,7 @@ class Perceptron:
         self.deriv_fun = deriv_fun
         self.split_data = split_data
         self.test_p = test_p
+        self.errors = [10000 for i in range(0, error_window)]
 
     def random_weights(self):
         return np.array(
@@ -48,15 +53,15 @@ class Perceptron:
 
     def calculate_error(self, test_data, expected_values):
         exts = np.array([np.dot(self.weights, i) for i in test_data])
-        return 0.5 * (
-            (
-            expected_values -np.array([self.activation_fun(i) for i in exts])
-            )
-            **2).sum()
+        acts = np.array([self.activation_fun(i) for i in exts])
+        error = 0.5 * ((expected_values - acts)**2).sum()
+        self.errors.append(error)
+        self.errors = self.errors[1:]
+        return error
 
     def calculate_deltaW(self, sample_expected, sample, ext):
         return self.eta * (sample_expected - self.activation_fun(ext)) \
-               * self.deriv_fun(ext) *  sample.transpose()
+               * self.deriv_fun(ext) * sample.transpose()
 
     #función de activación
     def guess(self, input_arr):
@@ -64,6 +69,14 @@ class Perceptron:
         inp.append(1)
         inp = np.array(inp)
         return self.activation_fun(np.dot(self.weights, inp))
+
+    def adapt_eta(self, last_error):
+        bigger = all(last_error >= i for i in self.errors)
+        smaller = all(last_error <= i for i in self.errors)
+        if bigger:
+            self.eta -= eta_variation
+        if smaller:
+            self.eta += eta_variation
 
 
     def train(self, inputs, expected):
@@ -73,6 +86,7 @@ class Perceptron:
         error = 1
         curr_step = 0
         error_min = 1
+        min_weights = self.weights
         while error > 0 and curr_step != max_steps:
             #si no encontramos solución en 100 pasos, reiniciar pesos
             if curr_step % 100:
@@ -87,8 +101,10 @@ class Perceptron:
             self.weights += self.calculate_deltaW(s_exp, sample, ext)
             #calcular el error evaluando todos los datos
             error = self.calculate_error(test_data, test_exp)
+            #self.adapt_eta(error)
             if error < error_min:
                 error_min = error
+                min_weights = self.weights
             curr_step += 1
-        return curr_step, self.weights, error
+        return curr_step, self.weights, min_weights, error
 

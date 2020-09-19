@@ -18,13 +18,12 @@ and_expected_values = [-1, -1, -1, 1]
 
 p = Perceptron(2, eta=learning_rate, activation_fun=step_activation, deriv_fun=step_deriv)
 
-iterations, weights, curr_error = p.train(and_input_data, and_expected_values)
+iterations, weights, min_weights, curr_error = p.train(and_input_data, and_expected_values)
 print("iterations " + str(iterations))
 print("weights " + str(weights))
 
 print("Resultados:")
-print(p.guess([-1,-1]), p.guess([-1, 1]), \
-      p.guess([1, -1]), p.guess([1, 1]))
+print(p.guess([-1,-1]), p.guess([-1, 1]), p.guess([1, -1]), p.guess([1, 1]))
 
 #Ejer 1.2, función XOR
 
@@ -33,11 +32,10 @@ print(p.guess([-1,-1]), p.guess([-1, 1]), \
 
 p2 = Perceptron(2, eta=learning_rate, activation_fun=step_activation, deriv_fun=step_deriv)
 
-xor_input_data= [[-1,-1], [-1,1], [1,-1], [1,1]]
-xor_expected_values = [-1, 1, 1, -1]
+xor_input= [[-1,-1], [-1,1], [1,-1], [1,1]]
+xor_expected = [-1, 1, 1, -1]
 
-iterations, weights, curr_error = \
-    p2.train(xor_input_data, xor_expected_values)
+iterations, weights, min_weights, curr_error = p2.train(xor_input, xor_expected)
 
 print("iterations " + str(iterations))
 print("weights " + str(weights))
