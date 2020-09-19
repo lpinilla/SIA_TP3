@@ -1,8 +1,8 @@
 import random
 import numpy as np
 
-max_steps = 10000
-error_window = 2
+max_steps = 1000
+error_window = 4
 eta_variation = 0.001
 
 class Perceptron:
@@ -72,9 +72,9 @@ class Perceptron:
 
     def adapt_eta(self, last_error):
         bigger = all(last_error >= i for i in self.errors)
-        smaller = all(last_error <= i for i in self.errors)
+        smaller = all(last_error < i for i in self.errors)
         if bigger:
-            self.eta -= eta_variation
+            self.eta -= eta_variation * self.eta
         if smaller:
             self.eta += eta_variation
 
@@ -89,7 +89,7 @@ class Perceptron:
         min_weights = self.weights
         while error > 0 and curr_step != max_steps:
             #si no encontramos solución en 100 pasos, reiniciar pesos
-            if curr_step % 100:
+            if curr_step % 1000:
                 self.weights = self.random_weights()
             #agarramos una muestra al azar con su valor experado
             idx = random.randint(0, len(inp_data) -1)
@@ -101,7 +101,7 @@ class Perceptron:
             self.weights += self.calculate_deltaW(s_exp, sample, ext)
             #calcular el error evaluando todos los datos
             error = self.calculate_error(test_data, test_exp)
-            #self.adapt_eta(error)
+            self.adapt_eta(error)
             if error < error_min:
                 error_min = error
                 min_weights = self.weights
