@@ -103,8 +103,8 @@ class Perceptron:
         min_weights = self.weights
         while error > 0 and curr_step != max_steps:
             #si no encontramos solución en 100 pasos, reiniciar pesos
-            if curr_step % 100:
-                self.weights = self.random_weights()
+            #if curr_step % 100:
+            #    self.weights = self.random_weights() TODO: ver si no conviene poner los mejores pesos en vez de arrancar random
             #agarramos una muestra al azar del batch con su valor experado
             idx = random.randint(0, len(inp_data) -1)
             sample = inp_data[idx]
