@@ -5,8 +5,8 @@ import numpy as np
 max_steps = 1000
 #eta adaptativo
 #hasta cuantos errores vamos a mirar si variamos eta
-error_window = 4
-eta_variation = 0.001
+error_window = 3
+eta_variation = 0.025
 
 class Perceptron:
 

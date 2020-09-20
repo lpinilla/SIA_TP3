@@ -17,7 +17,7 @@ def linear_activation(x):
 def linear_deriv(x):
     return 1
 
-beta = 0.5 #TODO: ver que valor poner
+beta = 0.7 #TODO: ver que valor poner
 #activación no lineal y su derivada
 def no_linear_activation(x):
     return 1 / (1 + np.exp(-2 * beta * x))
@@ -36,8 +36,11 @@ error = 5
 #indicar en cuantas partes está dividido el dataset
 n_of_parts = 4
 
-while error > 0:
+while error > 0.000000001:
     #Agarramos un dataset random
+    #data normalizada
+    #f = open(datasets_basepath + "n_" + str(random.randint(0,n_of_parts - 1)) + ".pickle", "rb")
+    #data no normalizada
     f = open(datasets_basepath + str(random.randint(0,n_of_parts - 1)) + ".pickle", "rb")
     #cargar los valores de entrada
     inp = pickle.load(f)
@@ -46,6 +49,7 @@ while error > 0:
     f.close()
     #entrenar con este dataset
     iterations, weights, min_weights, error = p.train(inp, exp)
+    #p.weights = min_weights
     print(error)
 
 #Testear al perceptrón

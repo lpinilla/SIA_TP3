@@ -2,7 +2,7 @@ import random
 import numpy as np
 from Perceptron import Perceptron
 
-learning_rate = 0.2
+learning_rate = 0.01
 
 #activación escalón
 def step_activation(x):

@@ -1,5 +1,6 @@
 #Archivo para dividir el dataset en distintos batchs
 import pickle
+import numpy as np
 
 input_data= "ejer2_conj_entrenamiento.txt"
 expected_data = "ejer2_salida_deseada.txt"
@@ -24,6 +25,15 @@ f.close()
 n = 64
 datasets_in = [inputs[i:i+n] for i in range(0, len(inputs), n)]
 datasets_ex = [expecteds[i:i+n] for i in range(0, len(expecteds), n)]
+
+def normalize(arr):
+    arr = np.array(arr)
+    arr = (arr - np.min(arr)) / np.ptp(arr)
+    return arr.tolist()
+
+#for i in range(0, len(datasets_in)):
+#    datasets_in[i] = normalize(datasets_in[i])
+#    datasets_ex[i] = normalize(datasets_ex[i])
 
 for i in range(0, len(datasets_in)):
     with open(output_basepath + str(i) + ".pickle", "wb") as f:

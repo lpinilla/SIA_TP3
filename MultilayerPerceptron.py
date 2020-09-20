@@ -78,11 +78,11 @@ class MultilayerPerceptron:
             w = l["prev_w"]
             l["weights"] += self.eta * \
                 np.dot(l["errors"].transpose(), layers[i-1]["v"]) + momentum * w
-        #falta ajustar los valores para la capa numero 1 que interactua con el input
         l = layers[1]
         w = l["prev_w"]
         l["weights"] += self.eta * np.dot(l[2]["errors"], inputs) + momentum * w
 
     def train(self,inp_data, exp_data):
+        #TODO inyectar datos en la capa 0
         #TODO implementar
         print("ok")
