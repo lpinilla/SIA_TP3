@@ -5,6 +5,8 @@ from Perceptron import Perceptron
 
 learning_rate = 0.01
 
+#FIXME: la normalización llevó a los números negativos al rango [0,1]. Revisar si esto está bien
+
 #Ejercicio 2
 
 #donde se encuentran los datasets
