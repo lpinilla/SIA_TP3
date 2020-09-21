@@ -37,7 +37,7 @@ nn.add_layer(35)
 #capa oculta intermedia
 nn.add_layer(35)
 #la salida
-nn.add_layer(10)
+nn.add_layer(9)
 
 error = 1
 

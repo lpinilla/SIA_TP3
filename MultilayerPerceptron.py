@@ -114,11 +114,11 @@ class MultilayerPerceptron:
             w = l["w"]
             l["prev_w"] = w
             l["w"] += self.eta * \
-                np.dot(l["e"].transpose(), layers[i-1]["v"]) + momentum * w
+                np.dot(l["e"].transpose(), layers[i-1]["v"]) + self.momentum * w
         l = layers[1]
         w = l["w"]
         l["prev_w"] = w
-        l["w"] += self.eta * np.dot(l["e"], layers[0]["v"]) + momentum * w
+        l["w"] += self.eta * np.dot(l["e"], layers[0]["v"]) + self.momentum * w
 
     def calculate_last_layer_error(self, expected):
         l = layers[-1]
