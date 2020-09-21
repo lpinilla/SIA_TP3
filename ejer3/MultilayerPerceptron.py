@@ -24,26 +24,38 @@ class MultilayerPerceptron:
         )
 
     #Agregamos una capa a la red
-    def add_layer(self, n_of_nodes, act_fun=None, deriv_fun=None):
+    def create_layer(self, n_of_nodes, fn=None, d_fn=None):
         layer = {
             #pesos de cada nodo o entradas si es la capa inicial
-            "w" : self.random_array(n_of_nodes+1) if not layers \
-            else [self.random_array(len(layers[-1]["v"])) for i in range(0, n_of_nodes+1)],
+            "w" : self.random_array(n_of_nodes) if not layers \
+            else [self.random_array(len(layers[-1]["v"])) for i in range(0, n_of_nodes)],
             #pesos anteriores, para usar momentum
-            "prev_w" : self.random_array(n_of_nodes+1) if not layers \
-            else [self.random_array(len(layers[-1]["v"])) for i in range(0, n_of_nodes+1)],
+            "prev_w" : self.random_array(n_of_nodes) if not layers \
+            else [self.random_array(len(layers[-1]["v"])) for i in range(0, n_of_nodes)],
             #valores de activación
-            "v" : self.random_array(n_of_nodes+1),
+            "v" : self.random_array(n_of_nodes),
             #valores de exitación
-            "h" : self.random_array(n_of_nodes+1),
+            "h" : self.random_array(n_of_nodes),
             #valores de error
-            "e": self.random_array(n_of_nodes+1),
+            "e": self.random_array(n_of_nodes),
             #función de activación
-            "fn": act_fun if act_fun != None else self.act_fun,
+            "fn": fn if fn != None else self.act_fun,
             #derivada de la función de activación
-            "deriv": deriv_fun if deriv_fun != None else self.deriv_fun
+            "deriv": d_fn if d_fn != None else self.deriv_fun
         }
-        layers.append(layer)
+        return layer
+
+    def entry_layer(self, n_of_nodes, fn=None, deriv=None):
+        l = self.create_layer(n_of_nodes+1, fn=fn, d_fn=deriv)
+        layers.append(l)
+
+    def add_hidden_layer(self, n_of_nodes, act_fun=None, deriv_fun=None):
+        l = self.create_layer(n_of_nodes+1, fn=act_fun, d_fn=deriv_fun)
+        layers.append(l)
+
+    def output_layer(self, n_of_nodes, fn=None, deriv=None):
+        l = self.create_layer(n_of_nodes, fn=fn, d_fn=deriv)
+        layers.append(l)
 
     def setup_entries(self, entries):
         entry = layers[0]
@@ -82,10 +94,11 @@ class MultilayerPerceptron:
         aux = 0
         guesses = [self.guess(i) for i in test_data]
         for i in range(len(test_exp)):
-            aux += np.array([
-                (test_exp[i][j] - guesses[i][j])**2 \
-                for j in range(0, len(test_exp[i]))]).sum()
-        return 0.5 * aux
+            _ex = test_exp[i]
+            guess = guesses[i]
+            for j in range(0, len(test_exp)):
+                aux += (_ex - guess) ** 2
+        return 0.5 * aux[0]
 
     #def calculate_error(self, test_data, expected):
     #    guesses = [self.guess(i) for i in test_data]
@@ -98,7 +111,6 @@ class MultilayerPerceptron:
     #            e__1 = 1 - exp[j]
     #            o_1 = 1 + guess[j]
     #            o__1 = 1 - guess[j]
-    #            print(e_1, e__1, o_1, o__1)
     #            aux += (e_1 * log(e_1 / o_1) + e__1 * log(e__1, o__1))
     #    return 0.5 * aux
 
@@ -114,26 +126,29 @@ class MultilayerPerceptron:
 
     #función que propaga regresivamente el valor de error
     def back_propagation(self):
-        for i in range(len(layers)-1, 2, -1):
+        for i in range(len(layers)-1, 1, -1):
             l = layers[i]
-            l_1 = layers[i+1]
-            aux = [np.dot(l_1["w"][j].transpose(), l_1["e"]) \
-                   for j in range(0, len(l_1["weights"]))]
-            #aux = np.dot(l_1["w"].transpose(), l_1["e"])
-            l["e"] = [l["deriv"](l["h"]) * j for j in aux]
-            #actualizar los pesos
-            w = l["w"]
-            l["prev_w"] = w
-            l["w"] += self.eta * \
-                np.dot(l["e"].transpose(), layers[i-1]["v"])# + self.momentum * w
-        l = layers[1]
-        w = l["w"]
-        l["prev_w"] = w
-        l["w"] += self.eta * np.dot(l["e"], layers[0]["v"])# + self.momentum * w
+            l_1 = layers[i-1]
+            errors = []
+            #calculamos los nuevos errores en base a los de la capa superior
+            for j in range(0, len(l_1["e"])):
+                #transponer los pesos de la capa superior
+                w_1 = np.array([l["w"][k][j] for k in range(0, len(l["w"]))])
+                #calcular los producto punto entre pesos y
+                #errores de la capa superior
+                aux = np.dot(w_1, l["e"])
+                errors.append(l_1["deriv"](l_1["h"][j]) * aux)
+            l_1["e"] = errors
+            #actualizar los pesos actuales en base a los errores
+            w = l_1["w"]
+            l_1["prev_w"] = w
+            for k in range(0, len(w)):
+                l_1["w"][k] += self.eta * l_1["deriv"](l_1["h"][k]) * \
+                    np.dot(l_1["e"], l["v"])# + self.momentum * w
 
     def calculate_last_layer_error(self, expected):
         l = layers[-1]
-        l["e"] = [l["fn"](l["h"][i]) * (expected[i] - l["v"][i]) \
+        l["e"] = [l["deriv"](l["h"][i]) * (expected[i] - l["v"][i]) \
                   for i in range(0, len(l["h"]))]
 
     def train(self, inputs, expected):

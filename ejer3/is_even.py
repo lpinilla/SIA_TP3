@@ -32,18 +32,18 @@ def tanh_deriv(x):
     return beta * (1 - tanh(x) ** 2)
 
 #Creamos la red
-nn = MultilayerPerceptron(learning_rate, momentum, tanh, tanh_deriv, test_percentage)
+nn = MultilayerPerceptron(learning_rate, momentum, logistic, logistic_deriv, test_percentage)
 
 #Definimos el modelo de la red
 
 #vamos a tener 1 entrada por byte, por lo que son 7 x 5 = 35 entradas
 #como tenemos que decir si el dígito está entre 0 y 9, vamos a tener
 #10 nodos de salida en donde indicamos la probabilidad de que sea ese número
-nn.add_layer(35)
+nn.entry_layer(35)
 #capa oculta intermedia
-nn.add_layer(35)
+nn.add_hidden_layer(35)
 #la salida
-nn.add_layer(9)
+nn.output_layer(10)
 
 error = 1
 
