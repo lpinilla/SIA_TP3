@@ -1,6 +1,7 @@
 import numpy as np
 import pickle
 import random
+import math
 from MultilayerPerceptron import MultilayerPerceptron
 
 #cargar data
@@ -11,22 +12,27 @@ f.close()
 
 learning_rate = 0.01
 momentum = 0.9
-test_percentage = 0.1
+test_percentage = 0.2
 
 #definimos la función de activación no lineal entre 0 y 1 (porque estamos buscando probabilidades)
 
 beta = 0.7 #TODO: ver que valor poner
 #activación no lineal y su derivada
-def no_linear_activation(x):
+def logistic(x):
     return 1 / (1 + np.exp(-2 * beta * x))
 
-def no_linear_deriv(x):
-    act = no_linear_activation(x)
+def logistic_deriv(x):
+    act = logistic(x)
     return 2 * beta * act * (1 - act)
 
+def tanh(x):
+    return math.tanh(beta * x)
+
+def tanh_deriv(x):
+    return beta * (1 - tanh(x) ** 2)
 
 #Creamos la red
-nn = MultilayerPerceptron(learning_rate, momentum, no_linear_activation, no_linear_deriv, test_percentage)
+nn = MultilayerPerceptron(learning_rate, momentum, tanh, tanh_deriv, test_percentage)
 
 #Definimos el modelo de la red
 
@@ -49,4 +55,4 @@ while error > 0.0001:
     error = nn.train(_input, _expected)
     print(error)
 
-print(nn.guess(_input[1]))
+print(nn.predict(_input[1]))
