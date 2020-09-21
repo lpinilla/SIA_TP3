@@ -31,12 +31,12 @@ def normalize(arr):
     arr = (arr - np.min(arr)) / np.ptp(arr)
     return arr.tolist()
 
-#for i in range(0, len(datasets_in)):
+for i in range(0, len(datasets_in)):
 #    datasets_in[i] = normalize(datasets_in[i])
-#    datasets_ex[i] = normalize(datasets_ex[i])
+    datasets_ex[i] = normalize(datasets_ex[i])
 
 for i in range(0, len(datasets_in)):
-    with open(output_basepath + str(i) + ".pickle", "wb") as f:
+    with open(output_basepath + "n_" + str(i) + ".pickle", "wb") as f:
         pickle.dump(datasets_in[i], f)
         pickle.dump(datasets_ex[i], f)
     f.close()
