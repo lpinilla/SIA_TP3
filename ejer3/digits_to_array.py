@@ -12,6 +12,7 @@ with open('numbers_pixelmaps.txt', 'r') as f:
         row = [int(i) for i  in line[:-1].split(' ')]
         number.extend(row)
         idx += 1
+    numbers.append(number)
 #saltear el primero que está vacío
 numbers = numbers[1:]
 f.close()

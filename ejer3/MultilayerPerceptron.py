@@ -78,7 +78,7 @@ class MultilayerPerceptron:
         return layers[len(layers)-1]["v"]
 
     def calculate_error(self, test_data, expected):
-        guesses = [guess(i) for i in test_data]
+        guesses = [self.guess(i) for i in test_data]
         aux = 0
         for i in range(0, len(expected)):
             exp = expected[i]
@@ -114,11 +114,11 @@ class MultilayerPerceptron:
             w = l["w"]
             l["prev_w"] = w
             l["w"] += self.eta * \
-                np.dot(l["e"].transpose(), layers[i-1]["v"]) + self.momentum * w
+                np.dot(l["e"].transpose(), layers[i-1]["v"])# + self.momentum * w
         l = layers[1]
         w = l["w"]
         l["prev_w"] = w
-        l["w"] += self.eta * np.dot(l["e"], layers[0]["v"]) + self.momentum * w
+        l["w"] += self.eta * np.dot(l["e"], layers[0]["v"])# + self.momentum * w
 
     def calculate_last_layer_error(self, expected):
         l = layers[-1]
