@@ -29,10 +29,10 @@ def no_linear_deriv(x):
     return 2 * beta * act * (1 - act)
 
 #Creamos perceptron lineal que dividiendo el dataset en 10% para testeo
-#p = Perceptron(3, learning_rate, activation_fun=linear_activation, deriv_fun=linear_deriv, split_data=True, test_p=0.1)
+p = Perceptron(3, learning_rate, activation_fun=linear_activation, deriv_fun=linear_deriv, split_data=True, test_p=0.1)
 
 #Creamos perceptron no-lineal que dividiendo el dataset en 10% para testeo
-p = Perceptron(3, learning_rate, activation_fun=no_linear_activation, deriv_fun=no_linear_deriv, split_data=True, test_p=0.1)
+#p = Perceptron(3, learning_rate, activation_fun=no_linear_activation, deriv_fun=no_linear_deriv, split_data=True, test_p=0.1)
 
 error = 5
 #indicar en cuantas partes está dividido el dataset
