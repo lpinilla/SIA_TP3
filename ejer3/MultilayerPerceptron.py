@@ -37,11 +37,11 @@ class MultilayerPerceptron:
             "prev_w" : np.zeros(n_of_nodes) if not layers \
             else [np.zeros(len(layers[-1]["v"])) for i in range(0, n_of_nodes)],
             #valores de activación
-            "v" : np.ones(n_of_nodes),
+            "v" : np.zeros(n_of_nodes),
             #valores de exitación
-            "h" : np.ones(n_of_nodes),
+            "h" : np.zeros(n_of_nodes),
             #valores de error
-            "e": np.ones(n_of_nodes),
+            "e": np.zeros(n_of_nodes),
             #función de activación
             "fn": fn if fn != None else self.act_fun,
             #derivada de la función de activación
@@ -116,44 +116,41 @@ class MultilayerPerceptron:
     #    return 0.5 * aux
 
     #función para propagar secuencialmente los valores
-    def feed_forward(self): #TODO revisar
+    def feed_forward(self):
         for i in range(1, len(layers)):
             l = layers[i]
-            h = [np.dot(l["w"][j], layers[i-1]["v"]) for j in range(0, len(l["h"]))]
+            l_1 = layers[i-1]
+            h = [np.dot(l["w"][j], l_1["v"]) for j in range(0, len(l["h"]))]
             l["h"] = np.array(h)
             l["v"] = np.array([l["fn"](i) for i in l["h"]])
 
     #función que propaga regresivamente el valor de error
-    def back_propagation(self): #TODO revisar
+    def back_propagation(self):
         for i in range(len(layers) - 1, 1, -1):
             l = layers[i]
             l_1 = layers[i-1]
-            #calculamos los nuevos errores en base a los de la capa superior
             errors = []
+            #calculamos los nuevos errores en base a los de la capa superior
             for j in range(0, len(l_1["e"])):
                 #agarrar todas las conexiones del nodo j con la capa superior
                 w_1 = np.array([l["w"][k][j] for k in range(0, len(l["w"]))])
-                #calcular los producto punto entre pesos y
-                #errores de la capa superior
-                aux = np.dot(w_1, l["e"])
-                errors.append(l_1["deriv"](l_1["h"][j]) * aux)
+                #agregar a la lista de errores el nuevo error del nodo j de
+                #la capa i - 1
+                errors.append(l_1["deriv"](l_1["h"][j]) * np.dot(w_1, l["e"]))
             l_1["e"] = errors
 
 
-    def update_weights(self): #FIXME
+    def update_weights(self):
         for i in range(len(layers) - 1, 1, -1):
             l = layers[i]
             l_1 = layers[i-1]
             w = l["w"]
             delta_w = 0
             for e in range(0, len(l["e"])):
-                for j in range(0, len(w)):
-                    aux = l["e"][e] * l_1["v"][j]
-                    #delta_w = np.multiply(self.eta * l["deriv"](l["h"][j]) ,  aux)
-                    delta_w = self.eta * l["deriv"](l["h"][j]) +  aux
-                    #print(l["prev_w"][j])
-                    l["w"][j] = np.add(l["w"][j], delta_w)# + self.momentum * l["prev_w"][j]
-                    l["prev_w"][j] = delta_w
+                for j in range(0, len(w[e])):
+                    delta_w = self.eta * l["e"][e] * l_1["v"][j]
+                    l["w"][e][j] +=  delta_w# + self.momentum * l["prev_w"][j]
+                    #l["prev_w"][e][j] = delta_w
 
 
     def calculate_last_layer_error(self, expected):
@@ -183,6 +180,8 @@ class MultilayerPerceptron:
                 self.calculate_last_layer_error(_ex)
                 #retropropagar el error hacia las demás capas
                 self.back_propagation()
+                self.print_layers()
+                print(1/0)
                 #ajustar los pesos
                 self.update_weights()
                 #calcular el error
