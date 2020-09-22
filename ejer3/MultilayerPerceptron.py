@@ -16,28 +16,32 @@ class MultilayerPerceptron:
         self.deriv_fun = deriv_fun
         self.test_p = test_p
 
-    #función para generar un array con valores al azar
-    #introducimos un valor de más para el sesgo
-    def random_array(self, n):
-        return np.array(
-            [random.random() * 2 - 1 for i in range(0, n)]
-        )
+    def print_layer(self, i):
+        l = layers[i]
+        print("i: " + str(i))
+        print(" w: " + str(l["w"]))
+        print(" v: " + str(l["v"]))
+        print(" h: " + str(l["h"]))
+        print(" e: " + str(l["e"]))
 
-    #Agregamos una capa a la red
+    def print_layers(self):
+        for i in range(0, len(layers)):
+            self.print_layer(i)
+
     def create_layer(self, n_of_nodes, fn=None, d_fn=None):
         layer = {
             #pesos de cada nodo o entradas si es la capa inicial
-            "w" : self.random_array(n_of_nodes) if not layers \
-            else [self.random_array(len(layers[-1]["v"])) for i in range(0, n_of_nodes)],
+            "w" : np.ones(n_of_nodes) if not layers \
+            else [np.ones(len(layers[-1]["v"])) for i in range(0, n_of_nodes)],
             #pesos anteriores, para usar momentum
             "prev_w" : np.zeros(n_of_nodes) if not layers \
             else [np.zeros(len(layers[-1]["v"])) for i in range(0, n_of_nodes)],
             #valores de activación
-            "v" : self.random_array(n_of_nodes),
+            "v" : np.ones(n_of_nodes),
             #valores de exitación
-            "h" : self.random_array(n_of_nodes),
+            "h" : np.ones(n_of_nodes),
             #valores de error
-            "e": self.random_array(n_of_nodes),
+            "e": np.ones(n_of_nodes),
             #función de activación
             "fn": fn if fn != None else self.act_fun,
             #derivada de la función de activación
@@ -161,29 +165,33 @@ class MultilayerPerceptron:
                   for i in range(0, len(l["e"]))]
 
 
-    def train(self, inputs, expected):
+    def train(self, inputs, expected, epochs):
         inp_data, inp_exp, test_data, test_exp = \
             self.process_input(inputs, expected)
         error = 1
         curr_step = 0
         error_min = 1
-        while error > 0 and curr_step != max_steps:
-            #agarrar un índice random para agarrar una muestra
-            idx = random.randint(0, len(inp_data) - 1)
-            _in = inp_data[idx]
-            _ex = inp_exp[idx]
-            self.setup_entries(_in)
-            #hacer feed forward
-            self.feed_forward()
-            #calcular el delta error de la última capa
-            self.calculate_last_layer_error(_ex)
-            #retropropagar el error hacia las demás capas
-            self.back_propagation()
-            #ajustar los pesos
-            self.update_weights()
-            #calcular el error
-            error = self.calculate_error(test_data, test_exp)
-            if error < error_min:
-                error_min = error
-            curr_step += 1
+        idxs = [i for i in range(0, len(inp_data))]
+        for i in range(0, epochs):
+            order = random.sample(idxs, len(idxs))
+            for j in range(0, len(order)):
+                #agarrar un índice random para agarrar una muestra
+                idx = order[j]
+                _in = inp_data[idx]
+                _ex = inp_exp[idx]
+                self.setup_entries(_in)
+                #hacer feed forward
+                self.feed_forward()
+                #calcular el delta error de la última capa
+                self.calculate_last_layer_error(_ex)
+                #retropropagar el error hacia las demás capas
+                self.back_propagation()
+                #ajustar los pesos
+                self.update_weights()
+                #calcular el error
+                error = self.calculate_error(test_data, test_exp)
+                if error < error_min:
+                    error_min = error
+                #curr_step += 1
+        print(error)
         return error
