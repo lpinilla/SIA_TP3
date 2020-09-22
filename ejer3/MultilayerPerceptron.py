@@ -118,38 +118,46 @@ class MultilayerPerceptron:
     def feed_forward(self):
         for i in range(1, len(layers)):
             l = layers[i]
-            h = []
-            for j in range(0, len(l["w"])):
-                h.append(np.dot(l["w"][j], layers[i-1]["v"]))
+            h = [np.dot(l["w"][j], layers[i-1]["v"]) for j in range(0, len(l["w"]))]
             l["h"] = np.array(h)
             l["v"] = np.array([l["fn"](i) for i in l["h"]])
 
     #función que propaga regresivamente el valor de error
     def back_propagation(self):
-        for i in range(len(layers)-1, 1, -1):
+        for i in range(len(layers) - 1, 1, -1):
             l = layers[i]
             l_1 = layers[i-1]
-            errors = []
             #calculamos los nuevos errores en base a los de la capa superior
+            errors = []
             for j in range(0, len(l_1["e"])):
-                #transponer los pesos de la capa superior
+                #agarrar todas las conexiones del nodo j con la capa superior
                 w_1 = np.array([l["w"][k][j] for k in range(0, len(l["w"]))])
                 #calcular los producto punto entre pesos y
                 #errores de la capa superior
                 aux = np.dot(w_1, l["e"])
-                errors.append(l_1["deriv"](l_1["h"][j]) * aux)
+                errors.append(l_1["deriv"](l_1["h"][j]) * aux) #FIXME REVISAR
             l_1["e"] = errors
-            #actualizar los pesos actuales en base a los errores
-            w = l_1["w"]
-            l_1["prev_w"] = w
-            for k in range(0, len(w)):
-                l_1["w"][k] += self.eta * l_1["deriv"](l_1["h"][k]) * \
-                    np.dot(l_1["e"], l["v"])# + self.momentum * w
+
+
+    def update_weights(self):
+        for i in range(len(layers) - 1, 1, -1):
+            l = layers[i]
+            l_1 = layers[i-1]
+            w = l["w"]
+            delta_w = 0
+            for e in range(0, len(l["e"])):
+                for j in range(0, len(w)):
+                    aux = l["e"][e] * l_1["v"][j]
+                    delta_w = np.multiply(self.eta * l["deriv"](l["h"][j]) ,  aux)
+                    l["w"][j] = np.add(l["w"][j], delta_w)# + self.momentum * l["prev_w"]
+                    l["prev_w"] = delta_w
+
 
     def calculate_last_layer_error(self, expected):
         l = layers[-1]
         l["e"] = [l["deriv"](l["h"][i]) * (expected[i] - l["v"][i]) \
-                  for i in range(0, len(l["h"]))]
+                  for i in range(0, len(l["e"]))]
+
 
     def train(self, inputs, expected):
         inp_data, inp_exp, test_data, test_exp = \
@@ -166,9 +174,11 @@ class MultilayerPerceptron:
             #hacer feed forward
             self.feed_forward()
             #calcular el delta error de la última capa
-            self.calculate_last_layer_error(expected)
+            self.calculate_last_layer_error(_ex)
             #retropropagar el error hacia las demás capas
             self.back_propagation()
+            #ajustar los pesos
+            self.update_weights()
             #calcular el error
             error = self.calculate_error(test_data, test_exp)
             if error < error_min:

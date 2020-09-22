@@ -10,9 +10,9 @@ _input = pickle.load(f)
 _expected = pickle.load(f)
 f.close()
 
-learning_rate = 0.01
-momentum = 0.9
-test_percentage = 0.2
+learning_rate = 0.1
+momentum = 0.8
+test_percentage = 0.1
 
 #definimos la función de activación no lineal entre 0 y 1 (porque estamos buscando probabilidades)
 
@@ -55,4 +55,7 @@ while error > 0.0001:
     error = nn.train(_input, _expected)
     print(error)
 
-print(nn.predict(_input[1]))
+idx = 1
+print(idx)
+print(nn.predict(_input[idx]))
+
