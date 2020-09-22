@@ -7,7 +7,7 @@ max_steps = 1000
 
 class MultilayerPerceptron:
 
-    def __init__(self, eta, momentum, act_fun, deriv_fun, test_p):
+    def __init__(self, eta=None, momentum=None, act_fun=None, deriv_fun=None, split_data=True, test_p=None):
         global layers
         global max_steps
         self.eta = eta
@@ -15,6 +15,7 @@ class MultilayerPerceptron:
         self.act_fun = act_fun
         self.deriv_fun = deriv_fun
         self.test_p = test_p
+        self.split_data=split_data
 
     def print_layer(self, i):
         l = layers[i]
@@ -31,17 +32,17 @@ class MultilayerPerceptron:
     def create_layer(self, n_of_nodes, fn=None, d_fn=None):
         layer = {
             #pesos de cada nodo o entradas si es la capa inicial
-            "w" : np.ones(n_of_nodes) if not layers \
-            else [np.ones(len(layers[-1]["v"])) for i in range(0, n_of_nodes)],
+            "w" : np.ones(n_of_nodes, dtype='double') if not layers \
+            else [np.ones(len(layers[-1]["v"]),dtype='double') for i in range(0, n_of_nodes)],
             #pesos anteriores, para usar momentum
             "prev_w" : np.zeros(n_of_nodes) if not layers \
             else [np.zeros(len(layers[-1]["v"])) for i in range(0, n_of_nodes)],
             #valores de activación
-            "v" : np.zeros(n_of_nodes),
+            "v" : np.zeros(n_of_nodes, dtype='double'),
             #valores de exitación
-            "h" : np.zeros(n_of_nodes),
+            "h" : np.zeros(n_of_nodes, dtype='double'),
             #valores de error
-            "e": np.zeros(n_of_nodes),
+            "e": np.zeros(n_of_nodes, dtype='double'),
             #función de activación
             "fn": fn if fn != None else self.act_fun,
             #derivada de la función de activación
@@ -82,9 +83,14 @@ class MultilayerPerceptron:
             inputs.append(input_data)
         #si se seteo, partir el dataset en input y test data
         #en base al % introducido
-        split_idx = int(len(input_arr) * (1 - self.test_p))
-        return np.array(inputs[:split_idx]), expected_arr[:split_idx], \
-               np.array(inputs[split_idx:]), expected_arr[split_idx:]
+        if self.split_data:
+            split_idx = int(len(input_arr) * (1 - self.test_p))
+            return np.array(inputs[:split_idx]), \
+                   expected_arr[:split_idx], \
+                   np.array(inputs[split_idx:]), \
+                   expected_arr[split_idx:]
+        return np.array(inputs), expected_arr, np.array(inputs), expected_arr
+
 
     def predict(self, _input):
         return self.guess(np.append(np.array(_input), 1))
@@ -137,7 +143,7 @@ class MultilayerPerceptron:
                 #agregar a la lista de errores el nuevo error del nodo j de
                 #la capa i - 1
                 errors.append(l_1["deriv"](l_1["h"][j]) * np.dot(w_1, l["e"]))
-            l_1["e"] = np.array(errors)
+            l_1["e"] = np.array(errors, dtype='double')
 
 
     def update_weights(self):
