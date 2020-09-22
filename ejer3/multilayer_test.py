@@ -19,7 +19,8 @@ def logistic(x):
     return 1 / (1 + np.exp(-2 * beta * x))
 
 def logistic_d(x):
-    act = logistic(x)
+    #act = logistic(x)
+    act = x
     return 2 * beta * act * (1 - act)
 
 nn = MultilayerPerceptron(learning_rate, momentum, logistic, logistic_d, test_p)
@@ -31,5 +32,5 @@ nn.output_layer(1)
 error = nn.train(_input, _expected, epochs=10000)
 #print(error)
 
-print(nn.predict(_input[0]), nn.predict(_input[1]), \
-      nn.predict(_input[2]), nn.predict(_input[3]))
+for i in range(0, len(_input)):
+    print(str(_input[i]) + " -> " + str(nn.predict(_input[i])))

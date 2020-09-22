@@ -94,7 +94,7 @@ class MultilayerPerceptron:
         self.feed_forward()
         return layers[len(layers)-1]["v"]
 
-    def calculate_error(self, test_data, test_exp): #TODO revisar las cuentas
+    def calculate_error(self, test_data, test_exp):
         guesses = [self.guess(i) for i in test_data]
         return 0.5 * np.array(
             [(np.subtract(test_exp[i], guesses[i])**2).sum() \
@@ -131,17 +131,17 @@ class MultilayerPerceptron:
             l_1 = layers[i-1]
             errors = []
             #calculamos los nuevos errores en base a los de la capa superior
-            for j in range(0, len(l_1["e"])):
+            for j in range(0, len(l_1["v"])):
                 #agarrar todas las conexiones del nodo j con la capa superior
                 w_1 = np.array([l["w"][k][j] for k in range(0, len(l["w"]))])
                 #agregar a la lista de errores el nuevo error del nodo j de
                 #la capa i - 1
                 errors.append(l_1["deriv"](l_1["h"][j]) * np.dot(w_1, l["e"]))
-            l_1["e"] = errors
+            l_1["e"] = np.array(errors)
 
 
     def update_weights(self):
-        for i in range(len(layers) - 1, 1, -1):
+        for i in range(len(layers) - 1, 0, -1):
             l = layers[i]
             l_1 = layers[i-1]
             w = l["w"]
@@ -173,6 +173,7 @@ class MultilayerPerceptron:
                 idx = order[j]
                 _in = inp_data[idx]
                 _ex = inp_exp[idx]
+                #print("entrada " + str(_in))
                 self.setup_entries(_in)
                 #hacer feed forward
                 self.feed_forward()
@@ -180,10 +181,11 @@ class MultilayerPerceptron:
                 self.calculate_last_layer_error(_ex)
                 #retropropagar el error hacia las demás capas
                 self.back_propagation()
-                self.print_layers()
-                print(1/0)
+                #self.print_layers()
                 #ajustar los pesos
                 self.update_weights()
+                #self.print_layers()
+                #print(1/0)
                 #calcular el error
                 error = self.calculate_error(test_data, test_exp)
                 if error < error_min:

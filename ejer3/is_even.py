@@ -22,7 +22,8 @@ def logistic(x):
     return 1 / (1 + np.exp(-2 * beta * x))
 
 def logistic_deriv(x):
-    act = logistic(x)
+    #act = logistic(x)
+    act = x
     return 2 * beta * act * (1 - act)
 
 def tanh(x):
@@ -51,6 +52,5 @@ error = nn.train(_input, _expected, epochs=100)
 print(error)
 
 idx = 1
-print(idx)
-print(nn.predict(_input[idx]))
+print(str(idx) + " -> " + str(nn.predict(_input[idx])))
 
