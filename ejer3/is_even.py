@@ -10,13 +10,13 @@ _input = pickle.load(f)
 _expected = pickle.load(f)
 f.close()
 
-learning_rate = 0.1
+learning_rate = 0.001
 momentum = 0.8
 test_percentage = 0.1
 
 #definimos la función de activación no lineal entre 0 y 1 (porque estamos buscando probabilidades)
 
-beta = 0.7 #TODO: ver que valor poner
+beta = 0.3 #TODO: ver que valor poner
 #activación no lineal y su derivada
 def logistic(x):
     return 1 / (1 + np.exp(-2 * beta * x))

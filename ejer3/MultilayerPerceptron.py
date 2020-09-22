@@ -30,8 +30,8 @@ class MultilayerPerceptron:
             "w" : self.random_array(n_of_nodes) if not layers \
             else [self.random_array(len(layers[-1]["v"])) for i in range(0, n_of_nodes)],
             #pesos anteriores, para usar momentum
-            "prev_w" : self.random_array(n_of_nodes) if not layers \
-            else [self.random_array(len(layers[-1]["v"])) for i in range(0, n_of_nodes)],
+            "prev_w" : np.zeros(n_of_nodes) if not layers \
+            else [np.zeros(len(layers[-1]["v"])) for i in range(0, n_of_nodes)],
             #valores de activación
             "v" : self.random_array(n_of_nodes),
             #valores de exitación
@@ -96,9 +96,9 @@ class MultilayerPerceptron:
         for i in range(len(test_exp)):
             _ex = test_exp[i]
             guess = guesses[i]
-            for j in range(0, len(test_exp)):
-                aux += (_ex - guess) ** 2
-        return 0.5 * aux[0]
+            for j in range(0, len(_ex)):
+                aux += (_ex[j] - guess[j]) ** 2
+        return 0.5 * aux
 
     #def calculate_error(self, test_data, expected):
     #    guesses = [self.guess(i) for i in test_data]
@@ -118,7 +118,7 @@ class MultilayerPerceptron:
     def feed_forward(self):
         for i in range(1, len(layers)):
             l = layers[i]
-            h = [np.dot(l["w"][j], layers[i-1]["v"]) for j in range(0, len(l["w"]))]
+            h = [np.dot(l["w"][j], layers[i-1]["v"]) for j in range(0, len(l["h"]))]
             l["h"] = np.array(h)
             l["v"] = np.array([l["fn"](i) for i in l["h"]])
 
@@ -135,7 +135,7 @@ class MultilayerPerceptron:
                 #calcular los producto punto entre pesos y
                 #errores de la capa superior
                 aux = np.dot(w_1, l["e"])
-                errors.append(l_1["deriv"](l_1["h"][j]) * aux) #FIXME REVISAR
+                errors.append(l_1["deriv"](l_1["h"][j]) * aux)
             l_1["e"] = errors
 
 
@@ -148,9 +148,11 @@ class MultilayerPerceptron:
             for e in range(0, len(l["e"])):
                 for j in range(0, len(w)):
                     aux = l["e"][e] * l_1["v"][j]
-                    delta_w = np.multiply(self.eta * l["deriv"](l["h"][j]) ,  aux)
-                    l["w"][j] = np.add(l["w"][j], delta_w)# + self.momentum * l["prev_w"]
-                    l["prev_w"] = delta_w
+                    #delta_w = np.multiply(self.eta * l["deriv"](l["h"][j]) ,  aux)
+                    delta_w = self.eta * l["deriv"](l["h"][j]) +  aux
+                    #print(l["prev_w"][j])
+                    l["w"][j] = np.add(l["w"][j], delta_w)# + self.momentum * l["prev_w"][j]
+                    l["prev_w"][j] = delta_w
 
 
     def calculate_last_layer_error(self, expected):
