@@ -5,10 +5,10 @@ import math
 from MultilayerPerceptron import MultilayerPerceptron
 
 #input
-_input = [[0,0], [0,1], [1, 0], [1, 1]]
-_expected = [[0], [0], [0], [1]]
+_input = [[-1, -1], [-1,1], [1, -1], [1, 1]]
+_expected = [[-1], [-1], [-1], [1]]
 
-learning_rate = 0.01
+learning_rate = 0.1
 momentum = 0.9
 test_p = 0.25
 
@@ -28,9 +28,8 @@ nn.entry_layer(2)
 nn.add_hidden_layer(2)
 nn.output_layer(1)
 
-error = 1
-while error > 0.0001:
-    error = nn.train(_input, _expected)
-    print(error)
+error = nn.train(_input, _expected, epochs=10000)
+#print(error)
 
-print(nn.predict(_input[1]))
+print(nn.predict(_input[0]), nn.predict(_input[1]), \
+      nn.predict(_input[2]), nn.predict(_input[3]))

@@ -47,13 +47,8 @@ nn.output_layer(10)
 
 error = 1
 
-while error > 0.0001:
-    #elegir input al azar
-    #idx = random.randint(0, len(_input) - 1)
-    #_in = _input[idx]
-    #_ex = _expected[idx]
-    error = nn.train(_input, _expected)
-    print(error)
+error = nn.train(_input, _expected, epochs=100)
+print(error)
 
 idx = 1
 print(idx)
