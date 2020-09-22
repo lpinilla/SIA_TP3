@@ -94,15 +94,12 @@ class MultilayerPerceptron:
         self.feed_forward()
         return layers[len(layers)-1]["v"]
 
-    def calculate_error(self, test_data, test_exp):
-        aux = 0
+    def calculate_error(self, test_data, test_exp): #TODO revisar las cuentas
         guesses = [self.guess(i) for i in test_data]
-        for i in range(len(test_exp)):
-            _ex = test_exp[i]
-            guess = guesses[i]
-            for j in range(0, len(_ex)):
-                aux += (_ex[j] - guess[j]) ** 2
-        return 0.5 * aux
+        return 0.5 * np.array(
+            [(np.subtract(test_exp[i], guesses[i])**2).sum() \
+             for i in range(0, len(test_exp))]
+        ).sum()
 
     #def calculate_error(self, test_data, expected):
     #    guesses = [self.guess(i) for i in test_data]
@@ -119,7 +116,7 @@ class MultilayerPerceptron:
     #    return 0.5 * aux
 
     #función para propagar secuencialmente los valores
-    def feed_forward(self):
+    def feed_forward(self): #TODO revisar
         for i in range(1, len(layers)):
             l = layers[i]
             h = [np.dot(l["w"][j], layers[i-1]["v"]) for j in range(0, len(l["h"]))]
@@ -127,7 +124,7 @@ class MultilayerPerceptron:
             l["v"] = np.array([l["fn"](i) for i in l["h"]])
 
     #función que propaga regresivamente el valor de error
-    def back_propagation(self):
+    def back_propagation(self): #TODO revisar
         for i in range(len(layers) - 1, 1, -1):
             l = layers[i]
             l_1 = layers[i-1]
@@ -143,7 +140,7 @@ class MultilayerPerceptron:
             l_1["e"] = errors
 
 
-    def update_weights(self):
+    def update_weights(self): #FIXME
         for i in range(len(layers) - 1, 1, -1):
             l = layers[i]
             l_1 = layers[i-1]
@@ -193,5 +190,5 @@ class MultilayerPerceptron:
                 if error < error_min:
                     error_min = error
                 #curr_step += 1
-        print(error)
+            print(error)
         return error
