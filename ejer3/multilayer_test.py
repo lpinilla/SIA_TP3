@@ -29,7 +29,15 @@ def logistic_d(x):
     #act = x
     return 2 * beta * act * (1 - act)
 
-nn = MultilayerPerceptron(learning_rate, momentum, act_fun=logistic, deriv_fun=logistic_d, split_data=False, test_p=test_p)
+def arctan(x):
+    return math.atan(x)
+
+def arctan_deriv(x):
+    y = arctan(x)
+    return 1 / (1 + (y ** 2))
+
+
+nn = MultilayerPerceptron(learning_rate, momentum, act_fun=arctan, deriv_fun=logistic_d, split_data=False, test_p=test_p)
 
 nn.entry_layer(2)
 nn.add_hidden_layer(5)
