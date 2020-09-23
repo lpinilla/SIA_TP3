@@ -1,12 +1,17 @@
 import random
 import math
 import numpy as np
+import pickle
 from Perceptron import Perceptron
 from MultilayerPerceptron import MultilayerPerceptron
 
 #perceptrón simple
 
-learning_rate = 0.01
+learning_rate = 11
+momentum = 0.8
+test_p = 0.25
+
+beta = 1.1
 
 #activación escalón
 def step_activation(x):
@@ -14,32 +19,6 @@ def step_activation(x):
 
 def step_deriv(x):
     return 1
-
-#Ejer 1.1, función AND
-
-_input= [[1, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 1, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 1, 0, 0,
- 0, 0, 0, 0, 0], [0, 0, 0, 1, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
- [0, 0, 0, 0, 0, 1, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 1, 0, 0, 0], [0, 0, 0, 0, 0,
- 0, 0, 1, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 1, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 1]]
-
-_expected = [1, 0, 1, 0, 1, 0, 1, 0, 1, 0]
-
-p = Perceptron(2, eta=learning_rate, activation_fun=step_activation, deriv_fun=step_deriv)
-
-iterations, weights, min_weights, curr_error = p.train(_input, _expected)
-print("iterations " + str(iterations))
-print("weights " + str(weights))
-
-print("Resultados:")
-#print(p.guess([-1,-1]), p.guess([-1, 1]), p.guess([1, -1]), p.guess([1, 1]))
-
-#Perceptrón multicapa
-
-learning_rate = 0.5
-momentum = 0.8
-test_p = 0.25
-
-beta = 0.5
 
 def tanh(x):
     return math.tanh(beta * x)
@@ -63,14 +42,39 @@ def arctan_deriv(x):
     y = arctan(x)
     return 1 / (1 + (y ** 2))
 
+#Ejer 1.1, función AND
 
-nn = MultilayerPerceptron(learning_rate, momentum, act_fun=arctan, deriv_fun=logistic_d, split_data=False, test_p=test_p)
+_input= [[1, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 1, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 1, 0, 0,
+0, 0, 0, 0, 0], [0, 0, 0, 1, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
+ [0, 0, 0, 0, 0, 1, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 1, 0, 0, 0], [0, 0, 0, 0, 0,
+ 0, 0, 1, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 1, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 1]]
 
-nn.entry_layer(2)
-nn.add_hidden_layer(5)
-nn.output_layer(1)
+_expected = [1, 0, 1, 0, 1, 0, 1, 0, 1, 0]
 
-error = nn.train(_input, _expected, epochs=5000)
+p = Perceptron(10, eta=learning_rate, activation_fun=logistic, deriv_fun=logistic_d)
 
-for i in range(0, len(_input)):
-    print(str(_input[i]) + " -> " + str(nn.predict(_input[i])))
+iterations, weights, min_weights, curr_error = p.train(_input, _expected)
+print("iterations " + str(iterations))
+print("weights " + str(min_weights))
+print("error: " + str(curr_error))
+
+with open("is_evenMinWeights.pickle","wb") as f:
+    pickle.dump(min_weights, f)
+f.close()
+
+print("Resultados:")
+#print(p.guess([-1,-1]), p.guess([-1, 1]), p.guess([1, -1]), p.guess([1, 1]))
+
+#Perceptrón multicapa
+
+
+# nn = MultilayerPerceptron(learning_rate, momentum, act_fun=arctan, deriv_fun=logistic_d, split_data=False, test_p=test_p)
+#
+# nn.entry_layer(2)
+# nn.add_hidden_layer(5)
+# nn.output_layer(1)
+#
+# error = nn.train(_input, _expected, epochs=5000)
+#
+# for i in range(0, len(_input)):
+#     print(str(_input[i]) + " -> " + str(nn.predict(_input[i])))
