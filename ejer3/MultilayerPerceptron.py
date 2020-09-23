@@ -62,8 +62,8 @@ class MultilayerPerceptron:
         l = self.create_layer(n_of_nodes, fn=fn, d_fn=deriv)
         layers.append(l)
 
-    def add_hidden_layer(self, n_of_nodes, act_fun=None, deriv_fun=None):
-        l = self.create_layer(n_of_nodes, fn=act_fun, d_fn=deriv_fun)
+    def add_hidden_layer(self, n_of_nodes, fn=None, deriv=None):
+        l = self.create_layer(n_of_nodes, fn=fn, d_fn=deriv)
         layers.append(l)
 
     def output_layer(self, n_of_nodes, fn=None, deriv=None):
@@ -116,7 +116,6 @@ class MultilayerPerceptron:
 
             inp = np.copy(l_1["v"])
             inp_bias = (np.append(inp, 1))
-
             h = [np.dot(l["w"][j], inp_bias) for j in range(len(l["h"]))]
             l["h"] = np.array(h)
             l["v"] = np.array([l["fn"](h[i]) for i in range(len(h))])
@@ -165,12 +164,27 @@ class MultilayerPerceptron:
              for i in range(0, len(test_exp))]
         ) / len(test_data)
 
+    def adapt_eta(self, i, err_history, error):
+        if i < 2:
+            err_history.append(error)
+            return 0
+        bigger = all(error >= i for i in err_history)
+        smaller = all(error < i for i in err_history)
+        err_history.append(error)
+        err_history = err_history[1:]
+        if bigger:
+            return - 0.5 * self.eta
+        if smaller:
+            return 0.1
+        return 0
+
     def train(self, inputs, expected, epochs):
         inp_data, inp_exp, test_data, test_exp = \
             self.process_input(inputs, expected)
         error = 1
         curr_step = 0
         error_min = 1
+        err_history = []
         idxs = [i for i in range(0, len(inp_data))]
         for i in range(0, epochs):
             order = random.sample(idxs, len(idxs))
@@ -193,6 +207,7 @@ class MultilayerPerceptron:
                 error = self.calculate_error(test_data, test_exp)
                 if error < error_min:
                     error_min = error
+                #self.eta += self.adapt_eta(len(idxs) * i + j, err_history, error)
                 # curr_step += 1
             print(error)
         return error
