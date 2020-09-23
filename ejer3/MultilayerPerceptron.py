@@ -33,8 +33,8 @@ class MultilayerPerceptron:
     def create_layer(self, n_of_nodes, fn=None, d_fn=None):
         layer = {
             #pesos de cada nodo o entradas si es la capa inicial
-            "w" : np.random.rand(n_of_nodes) if not layers \
-            else [np.random.rand(len(layers[-1]["v"])) for i in range(0, n_of_nodes)],
+            "w" : np.ones(n_of_nodes) if not layers \
+            else [np.ones(len(layers[-1]["v"])) for i in range(0, n_of_nodes)],
             #pesos anteriores, para usar momentum
             "prev_w" : np.zeros(n_of_nodes) if not layers \
             else [np.zeros(len(layers[-1]["v"])) for i in range(0, n_of_nodes)],
@@ -111,8 +111,8 @@ class MultilayerPerceptron:
             l_1 = layers[i-1]
             h = [np.dot(l["w"][j], l_1["v"]) for j in range(len(l["h"]))]
             l["h"] = np.array(h)
-            #l["v"] = np.array( [ l["fn"](h[i]) for i in range(len(h))])
-            l["v"] = np.array( [l["fn"](h[i]) + l["b"][i] for i in range(len(l["h"]))])
+            l["v"] = np.array( [ l["fn"](h[i]) for i in range(len(h))])
+            #l["v"] = np.array( [l["fn"](h[i]) + l["b"][i] for i in range(len(l["h"]))])
 
 
     #función que propaga regresivamente el valor de error
