@@ -8,7 +8,7 @@ max_steps = 1000
 
 class MultilayerPerceptron:
 
-    def __init__(self, eta=None, momentum=None, act_fun=None, deriv_fun=None, split_data=True, test_p=None):
+    def __init__(self, eta=None, momentum=None, act_fun=None, deriv_fun=None, split_data=True, test_p=None, use_momentum=False):
         global layers
         global max_steps
         self.eta = eta
@@ -17,6 +17,10 @@ class MultilayerPerceptron:
         self.deriv_fun = deriv_fun
         self.test_p = test_p
         self.split_data = split_data
+        if use_momentum:
+            self.use_momentum = 1
+        else:
+            self.use_momentum = 0
 
     def print_layer(self, i):
         l = layers[i]
@@ -35,10 +39,10 @@ class MultilayerPerceptron:
         layer = {
             # pesos de cada nodo o entradas si es la capa inicial
             "w": np.random.randn(n_of_nodes) if not layers \
-                else [np.random.randn(len(layers[-1]["v"]) + 1) for i in range(0, n_of_nodes)],
+                else [np.random.randn(len(layers[-1]["v"]) + 1) for i in range(n_of_nodes)],
             # pesos anteriores, para usar momentum
             "prev_w": np.zeros(n_of_nodes) if not layers \
-                else [np.zeros(len(layers[-1]["v"])) for i in range(0, n_of_nodes)],
+                else [np.zeros(len(layers[-1]["v"]) + 1) for i in range(n_of_nodes)],
             # valores de activación
             "v": np.ones(n_of_nodes),
             # valores de exitación
@@ -143,8 +147,8 @@ class MultilayerPerceptron:
                 for j in range(0, len(w[e]) - 1):
                     delta_w = self.eta * l["e"][e] * l_1["v"][j]
                     # actualizar los pesos
-                    l["w"][e][j] += delta_w  # + self.momentum * l["prev_w"][e][j]
-                    # l["prev_w"][e][j] = delta_w
+                    l["w"][e][j] += delta_w   + self.use_momentum * self.momentum * l["prev_w"][e][j]
+                    l["prev_w"][e][j] = delta_w
                     # actualizar el bias
                     # l["b"][e] += self.eta * l["e"][e]
 
