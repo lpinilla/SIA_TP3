@@ -9,10 +9,16 @@ _input = [[-1, -1], [-1,1], [1, -1], [1, 1]]
 _expected = [[-1], [1], [1], [-1]]
 
 learning_rate = 0.7
-momentum = 0.9
+momentum = 0.8
 test_p = 0.25
 
-beta = 0.3 #TODO: ver que valor poner
+beta = 0.7
+
+def tanh(x):
+    return math.tanh(beta * x)
+
+def tanh_deriv(x):
+    return beta * (1 - math.tanh(x)**2)
 
 #activación no lineal y su derivada
 def logistic(x):
@@ -23,12 +29,14 @@ def logistic_d(x):
     #act = x
     return 2 * beta * act * (1 - act)
 
-nn = MultilayerPerceptron(learning_rate, momentum, logistic, logistic_d, False, test_p)
+nn = MultilayerPerceptron(learning_rate, momentum, act_fun=tanh, deriv_fun=tanh_deriv, split_data=False, test_p=test_p)
 
 nn.entry_layer(2)
-nn.add_hidden_layer(2)
+nn.add_hidden_layer(5)
 nn.output_layer(1)
 
+error = 1
+#while error > 0.001:
 error = nn.train(_input, _expected, epochs=10000)
 #print(error)
 

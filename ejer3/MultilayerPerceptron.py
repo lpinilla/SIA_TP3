@@ -23,6 +23,7 @@ class MultilayerPerceptron:
         print(" w: " + str(l["w"]))
         print(" v: " + str(l["v"]))
         print(" h: " + str(l["h"]))
+        print(" b: " + str(l["b"]))
         print(" e: " + str(l["e"]))
 
     def print_layers(self):
@@ -32,17 +33,19 @@ class MultilayerPerceptron:
     def create_layer(self, n_of_nodes, fn=None, d_fn=None):
         layer = {
             #pesos de cada nodo o entradas si es la capa inicial
-            "w" : np.ones(n_of_nodes, dtype='double') if not layers \
-            else [np.ones(len(layers[-1]["v"]),dtype='double') for i in range(0, n_of_nodes)],
+            "w" : np.random.rand(n_of_nodes) if not layers \
+            else [np.random.rand(len(layers[-1]["v"])) for i in range(0, n_of_nodes)],
             #pesos anteriores, para usar momentum
             "prev_w" : np.zeros(n_of_nodes) if not layers \
             else [np.zeros(len(layers[-1]["v"])) for i in range(0, n_of_nodes)],
             #valores de activación
-            "v" : np.zeros(n_of_nodes, dtype='double'),
+            "v" : np.ones(n_of_nodes),
             #valores de exitación
-            "h" : np.zeros(n_of_nodes, dtype='double'),
+            "h" : np.ones(n_of_nodes),
             #valores de error
-            "e": np.zeros(n_of_nodes, dtype='double'),
+            "e": np.ones(n_of_nodes),
+            #valores de bias
+            "b": np.ones(n_of_nodes),
             #función de activación
             "fn": fn if fn != None else self.act_fun,
             #derivada de la función de activación
@@ -55,7 +58,7 @@ class MultilayerPerceptron:
         layers.append(l)
 
     def add_hidden_layer(self, n_of_nodes, act_fun=None, deriv_fun=None):
-        l = self.create_layer(n_of_nodes+1, fn=act_fun, d_fn=deriv_fun)
+        l = self.create_layer(n_of_nodes, fn=act_fun, d_fn=deriv_fun)
         layers.append(l)
 
     def output_layer(self, n_of_nodes, fn=None, deriv=None):
@@ -68,6 +71,7 @@ class MultilayerPerceptron:
         entry["w"] = []
         entry["prev_w"] = []
         entry["h"] = []
+        entry["b"] = []
         entry["e"] = []
 
     #agregar un 1 al valor (para el sesgo) y devolver un numpy array
@@ -77,7 +81,7 @@ class MultilayerPerceptron:
             #sumar el 1 como input para el sesgo
             input_bias = np.copy(inp)
             #agregar el 1 para el sesgo
-            input_bias = np.append(input_bias, 1)
+            input_bias = np.append(input_bias, 0.5)
             #convertir en array de numpy
             input_data = np.array(input_bias)
             inputs.append(input_data)
@@ -100,35 +104,16 @@ class MultilayerPerceptron:
         self.feed_forward()
         return layers[len(layers)-1]["v"]
 
-    def calculate_error(self, test_data, test_exp):
-        guesses = [self.guess(i) for i in test_data]
-        return 0.5 * np.array(
-            [(np.subtract(test_exp[i], guesses[i])**2).sum() \
-             for i in range(0, len(test_exp))]
-        ).sum()
-
-    #def calculate_error(self, test_data, expected):
-    #    guesses = [self.guess(i) for i in test_data]
-    #    aux = 0
-    #    for i in range(0, len(expected)):
-    #        exp = expected[i]
-    #        guess = guesses[i]
-    #        for j in range(0, len(exp)):
-    #            e_1 = 1 + exp[j]
-    #            e__1 = 1 - exp[j]
-    #            o_1 = 1 + guess[j]
-    #            o__1 = 1 - guess[j]
-    #            aux += (e_1 * log(e_1 / o_1) + e__1 * log(e__1, o__1))
-    #    return 0.5 * aux
-
     #función para propagar secuencialmente los valores
     def feed_forward(self):
         for i in range(1, len(layers)):
             l = layers[i]
             l_1 = layers[i-1]
-            h = [np.dot(l["w"][j], l_1["v"]) for j in range(0, len(l["h"]))]
+            h = [np.dot(l["w"][j], l_1["v"]) for j in range(len(l["h"]))]
             l["h"] = np.array(h)
-            l["v"] = np.array([l["fn"](i) for i in l["h"]])
+            #l["v"] = np.array( [ l["fn"](h[i]) for i in range(len(h))])
+            l["v"] = np.array( [l["fn"](h[i]) + l["b"][i] for i in range(len(l["h"]))])
+
 
     #función que propaga regresivamente el valor de error
     def back_propagation(self):
@@ -137,9 +122,9 @@ class MultilayerPerceptron:
             l_1 = layers[i-1]
             errors = []
             #calculamos los nuevos errores en base a los de la capa superior
-            for j in range(0, len(l_1["v"])):
+            for j in range(len(l_1["e"])):
                 #agarrar todas las conexiones del nodo j con la capa superior
-                w_1 = np.array([l["w"][k][j] for k in range(0, len(l["w"]))])
+                w_1 = np.array([l["w"][k][j] for k in range(len(l["w"]))])
                 #agregar a la lista de errores el nuevo error del nodo j de
                 #la capa i - 1
                 errors.append(l_1["deriv"](l_1["h"][j]) * np.dot(w_1, l["e"]))
@@ -147,7 +132,7 @@ class MultilayerPerceptron:
 
 
     def update_weights(self):
-        for i in range(len(layers) - 1, 0, -1):
+        for i in range(len(layers) - 1, 1, -1):
             l = layers[i]
             l_1 = layers[i-1]
             w = l["w"]
@@ -155,14 +140,26 @@ class MultilayerPerceptron:
             for e in range(0, len(l["e"])):
                 for j in range(0, len(w[e])):
                     delta_w = self.eta * l["e"][e] * l_1["v"][j]
-                    l["w"][e][j] +=  delta_w# + self.momentum * l["prev_w"][j]
-                    #l["prev_w"][e][j] = delta_w
+                    #actualizar los pesos
+                    l["w"][e][j] +=  delta_w #+ self.momentum * l["prev_w"][e][j]
+                    l["prev_w"][e][j] = delta_w
+                    #actualizar el bias
+                    l["b"][e] += self.eta * l["e"][e]
 
 
+    #función para calcular el error de la muestra en la última capa
     def calculate_last_layer_error(self, expected):
         l = layers[-1]
-        l["e"] = [l["deriv"](l["h"][i]) * (expected[i] - l["v"][i]) \
-                  for i in range(0, len(l["e"]))]
+        aux = np.sum(expected - l["v"])
+        l["e"] = np.array([l["deriv"](l["h"][i]) * aux for i in range(len(l["e"]))])
+
+
+    def calculate_error(self, test_data, test_exp):
+        guesses = [self.guess(i) for i in test_data]
+        return  np.sum(
+            [(np.subtract(test_exp[i], guesses[i])**2).sum() \
+             for i in range(0, len(test_exp))]
+        ) / len(test_data)
 
 
     def train(self, inputs, expected, epochs):
@@ -187,11 +184,8 @@ class MultilayerPerceptron:
                 self.calculate_last_layer_error(_ex)
                 #retropropagar el error hacia las demás capas
                 self.back_propagation()
-                #self.print_layers()
                 #ajustar los pesos
                 self.update_weights()
-                #self.print_layers()
-                #print(1/0)
                 #calcular el error
                 error = self.calculate_error(test_data, test_exp)
                 if error < error_min:
