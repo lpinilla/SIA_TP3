@@ -3,7 +3,6 @@ import pickle
 import random
 import math
 from MultilayerPerceptron import MultilayerPerceptron
-
 #cargar data
 f = open('ej3_resources/numbers_as_array.pickle', 'rb')
 _input = pickle.load(f)

@@ -5,14 +5,14 @@ import math
 from MultilayerPerceptron import MultilayerPerceptron
 
 #input
-_input = [[-1, -1], [-1,1], [1, -1], [1, 1]]
-_expected = [[-1], [1], [1], [-1]]
+_input = [[0, 0], [0,1], [1, 0], [1, 1]]
+_expected = [[0], [1], [1], [0]]
 
-learning_rate = 0.7
+learning_rate = 0.5
 momentum = 0.8
 test_p = 0.25
 
-beta = 0.7
+beta = 0.5
 
 def tanh(x):
     return math.tanh(beta * x)
@@ -29,7 +29,7 @@ def logistic_d(x):
     #act = x
     return 2 * beta * act * (1 - act)
 
-nn = MultilayerPerceptron(learning_rate, momentum, act_fun=tanh, deriv_fun=tanh_deriv, split_data=False, test_p=test_p)
+nn = MultilayerPerceptron(learning_rate, momentum, act_fun=logistic, deriv_fun=logistic_d, split_data=False, test_p=test_p)
 
 nn.entry_layer(2)
 nn.add_hidden_layer(5)
