@@ -8,7 +8,7 @@ max_steps = 1000
 
 class MultilayerPerceptron:
 
-    def __init__(self, eta=None, momentum=None, act_fun=None, deriv_fun=None, split_data=True, test_p=None):
+    def __init__(self, eta=None, momentum=None, act_fun=None, deriv_fun=None, split_data=True, test_p=None, use_momentum=False):
         global layers
         global max_steps
         self.eta = eta
@@ -17,6 +17,10 @@ class MultilayerPerceptron:
         self.deriv_fun = deriv_fun
         self.test_p = test_p
         self.split_data = split_data
+        if use_momentum:
+            self.use_momentum = 1
+        else:
+            self.use_momentum = 0
 
     def print_layer(self, i):
         l = layers[i]
@@ -35,10 +39,10 @@ class MultilayerPerceptron:
         layer = {
             # pesos de cada nodo o entradas si es la capa inicial
             "w": np.random.randn(n_of_nodes) if not layers \
-                else [np.random.randn(len(layers[-1]["v"]) + 1) for i in range(0, n_of_nodes)],
+                else [np.random.randn(len(layers[-1]["v"]) + 1) for i in range(n_of_nodes)],
             # pesos anteriores, para usar momentum
             "prev_w": np.zeros(n_of_nodes) if not layers \
-                else [np.zeros(len(layers[-1]["v"])) for i in range(0, n_of_nodes)],
+                else [np.zeros(len(layers[-1]["v"]) + 1) for i in range(n_of_nodes)],
             # valores de activación
             "v": np.ones(n_of_nodes),
             # valores de exitación
@@ -58,8 +62,8 @@ class MultilayerPerceptron:
         l = self.create_layer(n_of_nodes, fn=fn, d_fn=deriv)
         layers.append(l)
 
-    def add_hidden_layer(self, n_of_nodes, act_fun=None, deriv_fun=None):
-        l = self.create_layer(n_of_nodes, fn=act_fun, d_fn=deriv_fun)
+    def add_hidden_layer(self, n_of_nodes, fn=None, deriv=None):
+        l = self.create_layer(n_of_nodes, fn=fn, d_fn=deriv)
         layers.append(l)
 
     def output_layer(self, n_of_nodes, fn=None, deriv=None):
@@ -112,7 +116,6 @@ class MultilayerPerceptron:
 
             inp = np.copy(l_1["v"])
             inp_bias = (np.append(inp, 1))
-
             h = [np.dot(l["w"][j], inp_bias) for j in range(len(l["h"]))]
             l["h"] = np.array(h)
             l["v"] = np.array([l["fn"](h[i]) for i in range(len(h))])
@@ -143,8 +146,8 @@ class MultilayerPerceptron:
                 for j in range(0, len(w[e]) - 1):
                     delta_w = self.eta * l["e"][e] * l_1["v"][j]
                     # actualizar los pesos
-                    l["w"][e][j] += delta_w  # + self.momentum * l["prev_w"][e][j]
-                    # l["prev_w"][e][j] = delta_w
+                    l["w"][e][j] += delta_w   + self.use_momentum * self.momentum * l["prev_w"][e][j]
+                    l["prev_w"][e][j] = delta_w
                     # actualizar el bias
                     # l["b"][e] += self.eta * l["e"][e]
 
@@ -161,12 +164,27 @@ class MultilayerPerceptron:
              for i in range(0, len(test_exp))]
         ) / len(test_data)
 
+    def adapt_eta(self, i, err_history, error):
+        if i < 2:
+            err_history.append(error)
+            return 0
+        bigger = all(error >= i for i in err_history)
+        smaller = all(error < i for i in err_history)
+        err_history.append(error)
+        err_history = err_history[1:]
+        if bigger:
+            return - 0.5 * self.eta
+        if smaller:
+            return 0.1
+        return 0
+
     def train(self, inputs, expected, epochs):
         inp_data, inp_exp, test_data, test_exp = \
             self.process_input(inputs, expected)
         error = 1
         curr_step = 0
         error_min = 1
+        err_history = []
         idxs = [i for i in range(0, len(inp_data))]
         for i in range(0, epochs):
             order = random.sample(idxs, len(idxs))
@@ -189,6 +207,7 @@ class MultilayerPerceptron:
                 error = self.calculate_error(test_data, test_exp)
                 if error < error_min:
                     error_min = error
+                #self.eta += self.adapt_eta(len(idxs) * i + j, err_history, error)
                 # curr_step += 1
             print(error)
         return error

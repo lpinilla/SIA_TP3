@@ -38,7 +38,7 @@ error = 5
 #indicar en cuantas partes está dividido el dataset
 n_of_parts = 4
 
-while error > 0.0000001:
+while error > 0.01:
     #Agarramos un dataset random
     #data normalizada
     f = open(datasets_basepath + "n_" + str(random.randint(0,n_of_parts - 1)) + ".pickle", "rb")
